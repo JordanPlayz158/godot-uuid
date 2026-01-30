@@ -55,7 +55,7 @@ func benchmark_obj():
   var index = 0
 
   while index < NUMBER_OF_TESTS:
-    UUID.new().free()  # immediately freeing does not seem to add much overhead
+    UUID.new()
     index += 1
 
   var duration = 1.0 * Time.get_unix_time_from_system() - begin
@@ -75,7 +75,7 @@ func benchmark_obj_rng():
   var index = 0
 
   while index < NUMBER_OF_TESTS:
-    UUID.new(rng).free()  # immediately freeing does not seem to add much overhead
+    UUID.new(rng)
     index += 1
 
   var duration = 1.0 * Time.get_unix_time_from_system() - begin
@@ -109,10 +109,6 @@ func benchmark_obj_to_dict():
     (duration / NUMBER_OF_OBJECTS) * 1000000,
     duration
   ])
-  print('Cleaning up ...')
-
-  for uuid in uuids:
-    uuid.free()
   print('Benchmark done')
 
 func benchmark_obj_to_str():
@@ -137,10 +133,6 @@ func benchmark_obj_to_str():
     (duration / NUMBER_OF_OBJECTS) * 1000000,
     duration
   ])
-  print('Cleaning up ...')
-
-  for uuid in uuids:
-    uuid.free()
 
   print('Benchmark done')
 
@@ -148,28 +140,18 @@ func benchmark_comp_raw():
   print('Setting up benchmark ...')
   var uuids = []
   var index = 0
-
-  while index < NUMBER_OF_OBJECTS:
-    uuids.push_back(UUID.v4())
-    index += 1
-
-  index = 0
-
   var collisions = 0
 
   print('Benchmarking ...')
   var begin = Time.get_unix_time_from_system()
 
-  while index < (NUMBER_OF_OBJECTS - 1):
-    var uuid1 = uuids[index]
-    var sub_index = index + 1
+  while index < NUMBER_OF_OBJECTS:
+    var uuid = UUID.v4()
 
-    while sub_index < NUMBER_OF_OBJECTS:
-      if uuid1 == uuids[sub_index]:
-        # Don't print anything since it slows down the benchmark
-        collisions += 1
+    if uuid in uuids:
+      collisions += 1
 
-      sub_index += 1
+    uuids.push_back(uuid)
     index += 1
 
   var duration = 1.0 * Time.get_unix_time_from_system() - begin
@@ -187,27 +169,19 @@ func benchmark_comp_obj():
   print('Setting up benchmark ...')
   var uuids = []
   var index = 0
-
-  while index < NUMBER_OF_OBJECTS:
-    uuids.push_back(UUID.new())
-    index += 1
-
-  index = 0
   var collisions = 0
 
   print('Benchmarking ...')
   var begin = Time.get_unix_time_from_system()
 
-  while index < (NUMBER_OF_OBJECTS - 1):
-    var uuid1 = uuids[index]
-    var sub_index = index + 1
+  while index < NUMBER_OF_OBJECTS:
+    var uuid = UUID.new()
 
-    while sub_index < NUMBER_OF_OBJECTS:
-      if uuid1.is_equal(uuids[sub_index]):
-        # Don't print anything since it slows down the benchmark
-        collisions += 1
+    if uuids.find_custom(_find_uuid.bind(uuid)) > -1:
+      collisions += 1
 
-      sub_index += 1
+    uuids.push_back(uuid)
+
     index += 1
 
   var duration = 1.0 * Time.get_unix_time_from_system() - begin
@@ -219,12 +193,11 @@ func benchmark_comp_obj():
     (duration / NUMBER_OF_OBJECTS) * 1000000,
     duration
   ])
-  print('Cleaning up ...')
-
-  for uuid in uuids:
-    uuid.free()
 
   print('Benchmark done')
+
+func _find_uuid(object, expected):
+  return expected.is_equal(object)
 
 func detect_collision():
   print('Detecting collision ...')

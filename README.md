@@ -1,7 +1,7 @@
 uuid - static uuid generator for Godot Engine
 ===========================================
 
-The *uuid* class is a GDScript 'static' class that provides a unique identifier generation for [Godot Engine](https://godotengine.org).
+The *UUID* class is a GDScript 'static' class that provides a unique identifier generation for [Godot Engine](https://godotengine.org).
 
 Usage
 -----
@@ -9,10 +9,22 @@ Usage
 Copy the `uuid.gd` file in your project folder, and preload it using a constant.
 
 ```gdscript
-const uuid_util = preload('res://addons/uuid/uuid.gd')
-
 func _init():
-  print(uuid_util.v4())
+  # To generate a new UUID string
+  print(UUID.v4())
+
+  # To generate a new UUID object
+  var uuid_object = UUID.new()
+  var uuid_object_2 = UUID.new()
+
+  print(uuid_object.as_string())
+  print(uuid_object.as_dict())
+
+  # Get a duplicated object
+  print(uuid_object.as_array())
+
+  # Compare 2 UUID objects
+  print(uuid_object.is_equal(uuid_object_2))
 ```
 
 Licensing
